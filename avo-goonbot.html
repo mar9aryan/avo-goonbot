@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Avo GoonBot — Image + ASCII Avatar (Preloaded)</title>
+    <style>
+        :root {
+            --bg: #0b1020;
+            --panel: #0f1724;
+            --accent: #7be4a5;
+            --muted: #97a0b8;
+            --glass: rgba(255, 255, 255, 0.03);
+        }
+
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: Inter, Segoe UI, Roboto, monospace;
+            background: linear-gradient(160deg, #071024 0%, #0b1020 60%);
+            color: #e6eef8
+        }
+
+        .wrap {
+            max-width: 980px;
+            margin: 40px auto;
+            padding: 28px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+            border-radius: 12px;
+            box-shadow: 0 8px 40px rgba(2, 6, 23, 0.7)
+        }
+
+        h1 {
+            margin: 0 0 6px;
+            font-size: 22px;
+            letter-spacing: 0.6px
+        }
+
+        .meta {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 18px
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 18px
+        }
+
+        .panel {
+            background: var(--panel);
+            padding: 16px;
+            border-radius: 10px;
+            box-shadow: inset 0 1px 0 var(--glass)
+        }
+
+        .avatar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px
+        }
+
+        .chip {
+            width: 180px;
+            height: 180px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, #071226 0%, #0b1630 100%);
+            box-shadow: 0 6px 22px rgba(11, 20, 40, 0.7), inset 0 -6px 18px rgba(120, 160, 230, 0.02);
+            position: relative;
+            overflow: hidden;
+            padding: 6px
+        }
+
+        .chip img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            display: block
+        }
+
+        .ascii {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            overflow: auto;
+            display: none;
+            background: rgba(0, 0, 0, 0.25);
+        }
+
+        .ascii pre {
+            margin: 0;
+            font-family: "SFMono-Regular", Consolas, Menlo, monospace;
+            font-size: 7px;
+            line-height: 7px;
+            letter-spacing: 0.6px;
+            white-space: pre;
+            color: #d9f5e7;
+            text-shadow: 0 0 1px rgba(0, 0, 0, 0.6);
+        }
+
+        .pulse {
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            background: radial-gradient(circle at 50% 20%, rgba(123, 228, 165, 0.08), transparent 22%),
+                radial-gradient(circle at 80% 80%, rgba(123, 228, 165, 0.04), transparent 25%);
+            opacity: 0;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0
+            }
+
+            40% {
+                opacity: 1
+            }
+
+            100% {
+                opacity: 0
+            }
+        }
+
+        .goon-meter {
+            width: 100%;
+            height: 18px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 9px;
+            overflow: hidden;
+            position: relative
+        }
+
+        .goon-level {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--accent), #5bd0ff);
+            box-shadow: 0 6px 18px rgba(11, 20, 40, 0.6)
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap
+        }
+
+        .btn {
+            background: #0d3a2f;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--accent);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600
+        }
+
+        .btn.secondary {
+            background: transparent;
+            color: var(--muted);
+            border: 1px solid rgba(255, 255, 255, 0.08)
+        }
+
+        .btn.file {
+            position: relative;
+            overflow: hidden
+        }
+
+        .btn.file input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer
+        }
+
+        .console {
+            font-family: monospace;
+            font-size: 13px;
+            color: #cfeee2;
+            background: rgba(0, 0, 0, 0.15);
+            padding: 12px;
+            border-radius: 8px;
+            height: 250px;
+            overflow: auto
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            color: var(--muted);
+            font-size: 13px
+        }
+
+        .small {
+            font-size: 12px;
+            color: var(--muted)
+        }
+
+        .cpu {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            margin-top: 8px;
+            overflow: hidden
+        }
+
+        .cpu-bar {
+            height: 100%;
+            width: 8%;
+            background: linear-gradient(90deg, #ffb86b, #ff6b6b)
+        }
+
+        footer {
+            margin-top: 14px;
+            color: var(--muted);
+            font-size: 12px;
+            text-align: right
+        }
+
+        @media (max-width:860px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrap">
+        <h1>Avo GoonBot — Image + ASCII Avatar 🤖</h1>
+        <div class="meta">Preloads <code>Avo.jpg</code> automatically. Toggle ASCII mode for a live text portrait. Just
+            jokes, keep it friendly.</div>
+
+        <div class="grid">
+            <div class="panel">
+                <div class="avatar">
+                    <div class="chip" id="chip">
+                        <!-- Preloaded image -->
+                        <img id="avatarImg" src="Avo.jpg" alt="Avo avatar" />
+                        <!-- ASCII container -->
+                        <div class="ascii" id="asciiBox">
+                            <pre id="asciiOut"></pre>
+                        </div>
+                        <div class="pulse" id="pulseLayer"></div>
+                    </div>
+
+                    <div class="controls">
+                        <!-- Upload is optional; useful if you want to swap photos -->
+                        <label class="btn file">Upload Another Photo
+                            <input id="fileInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
+                        </label>
+                        <button class="btn secondary" id="toggleAscii">ASCII Mode: Off</button>
+                    </div>
+
+                    <div style="width:100%">
+                        <div class="small">GoonMeter</div>
+                        <div class="goon-meter">
+                            <div class="goon-level" id="goonLevel"></div>
+                        </div>
+                        <div class="stat-row">
+                            <div><strong id="stateLabel">idle</strong></div>
+                            <div class="small">uptime: <span id="uptime">0s</span></div>
+                        </div>
+                        <div class="controls">
+                            <button class="btn" id="startBtn">Start Gooning</button>
+                            <button class="btn secondary" id="pauseBtn">Pause</button>
+                            <button class="btn secondary" id="resetBtn">Reset</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div style="display:flex;gap:12px;align-items:center;justify-content:space-between">
+                    <div><strong>GoonBot Console</strong>
+                        <div class="small">simulated log & telemetry</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div class="small">CPU</div>
+                        <div class="cpu" style="width:160px">
+                            <div class="cpu-bar" id="cpuBar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="console" id="console" role="log" aria-live="polite"></div>
+                <div style="display:flex;gap:10px;margin-top:10px">
+                    <button class="btn secondary" id="spamLog">Spam Console</button>
+                    <button class="btn secondary" id="beepBtn">Make Silly Beep</button>
+                    <button class="btn secondary" id="memeBtn">Random Meme Message</button>
+                </div>
+                <footer>Keep it kind, Zemlyak. ❤️</footer>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (() => {
+            // ===== Elements
+            const fileInput = document.getElementById('fileInput');
+            const avatarImg = document.getElementById('avatarImg');
+            const asciiBox = document.getElementById('asciiBox');
+            const asciiOut = document.getElementById('asciiOut');
+            const toggleAsciiBtn = document.getElementById('toggleAscii');
+            const pulseLayer = document.getElementById('pulseLayer');
+
+            const consoleEl = document.getElementById('console');
+            const goonLevel = document.getElementById('goonLevel');
+            const stateLabel = document.getElementById('stateLabel');
+            const startBtn = document.getElementById('startBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const cpuBar = document.getElementById('cpuBar');
+            const uptimeEl = document.getElementById('uptime');
+
+            // ===== State
+            let asciiMode = false;
+            let currentImageSource = null; // ImageBitmap or HTMLImageElement
+
+            let running = false, paused = false, startTime = null, tickInterval = null, level = 0, cpu = 5;
+
+            // ===== Utils
+            const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+            const setState = (s) => { stateLabel.textContent = s; };
+            const log = (text) => {
+                const t = new Date().toLocaleTimeString();
+                const p = document.createElement('div');
+                p.textContent = `[${t}] ${text}`;
+                consoleEl.prepend(p);
+            };
+
+            // ===== Audio beeper
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            let audioCtx = null;
+            function ensureAudio() { if (!audioCtx) audioCtx = new AudioCtx(); }
+            function beep(level, long = false) {
+                try {
+                    ensureAudio();
+                    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+                    o.type = 'sine'; o.frequency.value = 220 + Math.min(1000, level * 6);
+                    g.gain.value = long ? 0.06 : 0.03; o.connect(g); g.connect(audioCtx.destination);
+                    o.start(); setTimeout(() => o.stop(), long ? 480 : 160);
+                } catch (e) { }
+            }
+
+            // ===== ASCII conversion
+            async function toASCII(source) {
+                const chipSize = 180;
+                const width = source.width || source.naturalWidth;
+                const height = source.height || source.naturalHeight;
+
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+                // center square crop
+                let sx = 0, sy = 0, sw = width, sh = height;
+                const side = Math.min(sw, sh);
+                sx = Math.floor((sw - side) / 2);
+                sy = Math.floor((sh - side) / 2);
+                sw = side; sh = side;
+
+                // ASCII grid
+                const charsWide = 58;
+                const cellW = Math.floor(chipSize / charsWide);
+                const charsHigh = Math.floor(chipSize / (cellW * 0.5));
+                canvas.width = charsWide;
+                canvas.height = charsHigh;
+
+                // draw
+                ctx.drawImage(source, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+                const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+
+                // map luminance to characters
+                const ramp = "@#%WX98B&SDRqpdbkhao*+;:,.'` ";
+                const rampLen = ramp.length - 1;
+                const lines = [];
+                for (let y = 0; y < canvas.height; y++) {
+                    let line = "";
+                    for (let x = 0; x < canvas.width; x++) {
+                        const i = (y * canvas.width + x) * 4;
+                        const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3] / 255;
+                        const R = r * a + 10 * (1 - a), G = g * a + 16 * (1 - a), B = b * a + 32 * (1 - a);
+                        const L = 0.2126 * R + 0.7152 * G + 0.0722 * B;
+                        const idx = Math.max(0, Math.min(rampLen, Math.round((1 - L / 255) * rampLen)));
+                        line += ramp[idx] + ramp[idx]; // widen
+                    }
+                    lines.push(line);
+                }
+                asciiOut.textContent = lines.join("\n");
+            }
+
+            function renderAvatar() {
+                if (!currentImageSource) {
+                    avatarImg.style.display = 'block';
+                    asciiBox.style.display = 'none';
+                    return;
+                }
+                if (asciiMode) {
+                    avatarImg.style.display = 'none';
+                    asciiBox.style.display = 'block';
+                    toASCII(currentImageSource);
+                } else {
+                    asciiBox.style.display = 'none';
+                    avatarImg.style.display = 'block';
+                }
+            }
+
+            // ===== Preload the bundled Avo.jpg without fetch (works under file://)
+            async function initPreloadedImage() {
+                // The <img> already points to Avo.jpg. When it loads, capture it for ASCII.
+                avatarImg.onload = async () => {
+                    try {
+                        if ('createImageBitmap' in window) {
+                            currentImageSource = await createImageBitmap(avatarImg);
+                        } else {
+                            currentImageSource = avatarImg; // fallback
+                        }
+                        log("Avo.jpg loaded ✅");
+                        renderAvatar();
+                    } catch (e) {
+                        currentImageSource = avatarImg;
+                        renderAvatar();
+                        log("Avo.jpg loaded (fallback) — ASCII still works.");
+                    }
+                };
+                avatarImg.onerror = () => {
+                    log("Couldn't find Avo.jpg — check file name/path.");
+                };
+
+                // if it was cached and already loaded, trigger onload manually
+                if (avatarImg.complete && avatarImg.naturalWidth > 0) {
+                    avatarImg.onload();
+                }
+            }
+
+            // ===== Optional: allow swapping photo via upload
+            fileInput.addEventListener('change', async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                const url = URL.createObjectURL(file);
+                avatarImg.src = url;
+                avatarImg.onload = async () => {
+                    URL.revokeObjectURL(url);
+                    try {
+                        if ('createImageBitmap' in window) {
+                            currentImageSource = await createImageBitmap(avatarImg);
+                        } else {
+                            currentImageSource = avatarImg;
+                        }
+                        asciiMode = false;
+                        toggleAsciiBtn.textContent = 'ASCII Mode: Off';
+                        renderAvatar();
+                        log("New photo loaded from file chooser.");
+                    } catch (err) {
+                        currentImageSource = avatarImg;
+                        renderAvatar();
+                        log("Loaded new photo (fallback).");
+                    }
+                };
+            });
+
+            // ===== ASCII toggle
+            toggleAsciiBtn.addEventListener('click', () => {
+                asciiMode = !asciiMode;
+                toggleAsciiBtn.textContent = 'ASCII Mode: ' + (asciiMode ? 'On' : 'Off');
+                renderAvatar();
+            });
+
+            // ===== GoonBot sim
+            function startGoon() {
+                if (running && !paused) return;
+                if (!running) {
+                    running = true; startTime = Date.now(); level = 0;
+                    log("Booting Avo GoonAgent v1.0... initializing focus sensors.");
+                    setState('warming up');
+                } else if (paused) {
+                    paused = false; setState('resuming'); log("Resuming goon sequence.");
+                }
+                clearInterval(tickInterval);
+                tickInterval = setInterval(tick, 600);
+            }
+            function pauseGoon() { if (!running || paused) return; paused = true; setState('paused'); log("Sequence paused. Hydration break."); }
+            function resetGoon() {
+                running = false; paused = false; level = 0; cpu = 5; clearInterval(tickInterval);
+                setState('idle'); goonLevel.style.width = '0%'; cpuBar.style.width = cpu + '%'; uptimeEl.textContent = '0s';
+                log("GoonAgent reset. Sensors cleared.");
+            }
+            function randomMemeLine() {
+                const lines = [
+                    "Avo.exe: optimized for questionable productivity.",
+                    "Reminder: hydrate and stretch, king.",
+                    "Telemetry: mood 73% goofy, 20% smug, 7% philosopher.",
+                    "System: consider a sandwich. science demands it.",
+                    "GoonLog: user claimed 'one more minute' 17 minutes ago."
+                ];
+                log(lines[rand(0, lines.length - 1)]);
+            }
+            function tick() {
+                if (!running || paused) return;
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                uptimeEl.textContent = elapsed + 's';
+                const step = rand(3, 11);
+                level = Math.min(100, level + step + Math.floor(Math.sin(elapsed / 7) * 6));
+                level = Math.max(0, Math.min(100, level + rand(-5, 5)));
+                goonLevel.style.width = level + '%';
+                cpu = Math.max(4, Math.min(100, Math.floor(level * 0.65) + rand(-6, 6)));
+                cpuBar.style.width = cpu + '%';
+                pulseLayer.style.animationDuration = Math.max(0.8, 2 - level / 120) + 's';
+
+                if (level < 20) { setState('calibrating'); log('Calibrating dopamine thresholds...'); }
+                else if (level < 50) { setState('engaged'); log('HandshakeProtocol active. Initiating focus loop.'); }
+                else if (level < 85) { setState('peak'); log('GoonEngine ramping to peak. Load hype playlist.'); beep(level); }
+                else { setState('overdrive'); log('OVERDRIVE: flirting with overload. Deploy meme shield.'); beep(level, true); }
+
+                if (rand(0, 7) === 0) randomMemeLine();
+                if (level >= 100) { log('Sequence complete. Victory dance engaged.'); setState('done'); running = false; clearInterval(tickInterval); }
+            }
+
+            // ===== Wire buttons
+            startBtn.addEventListener('click', startGoon);
+            pauseBtn.addEventListener('click', pauseGoon);
+            resetBtn.addEventListener('click', resetGoon);
+            document.getElementById('spamLog').addEventListener('click', () => { for (let i = 0; i < 6; i++) log(['yup', 'bruh', 'peak', 'lol', 'brb', 'chill'][rand(0, 5)] + ' — telemetry spike'); });
+            document.getElementById('beepBtn').addEventListener('click', () => { beep(rand(10, 80)); log('Beep! test tone emitted.'); });
+            document.getElementById('memeBtn').addEventListener('click', randomMemeLine);
+
+            // ===== Boot
+            resetGoon();
+            log("Preloading bundled Avo.jpg...");
+            initPreloadedImage();
+            log("Ready. Press Start Gooning to roast Avo.");
+        })();
+    </script>
+</body>
+
+</html>
